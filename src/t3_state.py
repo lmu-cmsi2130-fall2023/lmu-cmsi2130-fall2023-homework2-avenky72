@@ -3,6 +3,7 @@ from typing import *
 from t3_action import *
 import copy
 import itertools
+"""Atul Venkatesan"""
 
 @dataclass
 class T3State:
@@ -20,7 +21,7 @@ class T3State:
     # The default size of the game board, though can be arbitrarily larger
     DEFAULT_SIZE = 3
     
-    def __init__(self, odd_turn: bool, state: Optional[list[list[int]]]):
+    def __init__(self, odd_turn: bool, state: Optional["list[list[int]]"]):
         """
         Constructs a new T3 Board State from either the one provided,
         or the default, which will be a 3x3 empty grid. Which players turn
@@ -58,8 +59,8 @@ class T3State:
         return act.col() >= 0 and act.col() < self._rows and \
                act.row() >= 0 and act.row() < self._cols and \
                act.move() >= 0 and act.move() <= T3State.MAX_MOVE and \
-               act.move() % 2 == 1 if self._odd_turn else act.move() % 2 == 0 and \
-               self._state[act.row()][act.col()] == 0
+               self._state[act.row()][act.col()] == 0 and \
+               act.move() % 2 == 1 if self._odd_turn else act.move() % 2 == 0
     
     def get_next_state(self, act: Optional["T3Action"]) -> "T3State":
         """
@@ -86,7 +87,7 @@ class T3State:
         next_state._odd_turn = not next_state._odd_turn
         return next_state
     
-    def get_open_tiles(self) -> list[tuple[int, int]]:
+    def get_open_tiles(self) -> "list[tuple[int, int]]":
         """
         Returns a list of (x,y) = (c,r) tuples indicating the open tiles into which
         players may place numbers in the current board state (i.e., returns the
@@ -99,7 +100,7 @@ class T3State:
         tile_pos = itertools.product(range(self._cols), range(self._rows))
         return [(c, r) for (c, r) in tile_pos if self._state[r][c] == 0]
     
-    def get_moves(self) -> list[int]:
+    def get_moves(self) -> "list[int]":
         """
         Returns the list of "move" options for any open tile available to the 
         player whose turn it is in the current state.
@@ -159,47 +160,13 @@ class T3State:
     # DO NOT TOUCH ABOVE THIS LINE! Your work is below!
     # ---------------------------------------------------------------------------
     
-    def get_transitions(self) -> Iterator[tuple["T3Action", "T3State"]]:
         """
-        Returns a Generator of the transitions from this state, viz., tuples of
-        T3Actions mapped to the next T3States they lead to from the current state.
-        
-        [!] Note: for convenience in the T3Player, should generate tuples in order
-        of the T3Action tiebreaking order!
-        
-        Example:
-            [6, 4, 1]
-            [1, 1, 4]
-            [4, 1, 0]
-        
-            If even's turn, there is 1 open tiles in which to move, with the
-            following combos that would be generated (note each item is a tuple of
-            the format (T3Action, T3State)):
-            
-            (T3Action(2, 2, 2),
-             T3State(True, [
-                 [6, 4, 1],
-                 [1, 1, 4],
-                 [4, 1, 2]
-             ]))
-            (T3Action(2, 2, 4),
-             T3State(True, [
-                 [6, 4, 1],
-                 [1, 1, 4],
-                 [4, 1, 4]
-             ]))
-            (T3Action(2, 2, 6),
-             T3State(True, [
-                 [6, 4, 1],
-                 [1, 1, 4],
-                 [4, 1, 6]
-             ]))
-        
-        Returns:
-            Iterator[tuple["T3Action", "T3State"]]:
-                A Generator of transition tuples of the format (T3Action, T3State)
+        For any state in the game, it generates all possible future actions/states.
         """
-        # [!] TODO! (delete these next 2 lines to start)
-        return
-        yield
-        
+    def get_transitions(self) -> Iterator["tuple[T3Action, T3State]"]:
+       for columns, rows in self.get_open_tiles():
+            for moves in self.get_moves():
+                curr_Actions = T3Action(columns, rows, moves)
+                if self.is_valid_action(curr_Actions):
+                    next_State = self.get_next_state(curr_Actions)
+                    yield (curr_Actions, next_State) 
